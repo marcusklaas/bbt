@@ -226,7 +226,18 @@ impl Rater {
                 } else {
                     0.0
                 };
-                let delta = (self.team_params[team_idx].sigma_sq / c) * (s - piq);
+
+                // Note: the use of min sig squared is not a faithful
+                // implementation of the paper, but should stop inflation
+                // or deflation of player skill.
+                let sig_sq_avg =
+                    if self.team_params[team2_idx].sigma_sq < self.team_params[team_idx].sigma_sq {
+                        self.team_params[team2_idx].sigma_sq
+                    } else {
+                        self.team_params[team_idx].sigma_sq
+                    };
+
+                let delta = (sig_sq_avg / c) * (s - piq);
                 let gamma = self.team_params[team_idx].sigma_sq.sqrt() / c;
                 let eta = gamma * (self.team_params[team_idx].sigma_sq / (c * c)) * piq * pqi;
 
